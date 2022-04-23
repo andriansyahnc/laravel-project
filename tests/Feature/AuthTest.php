@@ -32,6 +32,17 @@ class AuthTest extends TestCase
             ["owner", 0],
         ];
     }
+
+    public function test_failed_user_register()
+    {
+        $user = [
+            "email" => "mail@mail.com",
+	        "password" => "password",
+	        "confirm_password" => "password",
+        ];
+        $response = $this->json('POST', '/api/user/register', $user);
+        $response->assertStatus(422);
+    }
     
     /**
      * @dataProvider role_points
@@ -97,6 +108,20 @@ class AuthTest extends TestCase
         $content = $response->getContent();
         $content_json = json_decode($content);
         $this->assertEquals(true, $content_json->success);
+    }
+
+    public function test_failed_login_user()
+    {
+        $user_data = [
+            'email' => 'mail@email.com',
+            'password' => bcrypt('password'),
+        ];
+        $user = User::factory(App\Model\User::class)->create($user_data);
+        $response = $this->json('POST', '/api/user/login', [
+            'email' => 'mails@email.com',
+            'password' => 'password',
+        ]);
+        $response->assertStatus(401);
     }
 
     public function test_logout_user()
