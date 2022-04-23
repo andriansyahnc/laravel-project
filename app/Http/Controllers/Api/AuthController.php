@@ -40,7 +40,7 @@ class AuthController extends Controller
 
         $user = $this->authRepository->store($input);
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $token = $user->createToken('auth_token', [$input['role']])->plainTextToken;
 
         return response()->json([
             "status" => true,
@@ -59,8 +59,9 @@ class AuthController extends Controller
         }
 
         $user = $this->authRepository->getByMail($request['email']);
+        $group = $user->users_groups->group->name;
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $token = $user->createToken('auth_token', [$group])->plainTextToken;
 
         return response()->json([
             'success' => true,

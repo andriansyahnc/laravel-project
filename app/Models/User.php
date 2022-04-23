@@ -58,11 +58,11 @@ class User extends Authenticatable
 
     public function users_groups()
     {
-        return $this->hasMany('App\Models\UsersGroups', 'user_id');
+        return $this->hasOne('App\Models\UsersGroups', 'user_id');
     }
 
     public function points()
     {
-        return $this->belongsTo('App\Models\UserPoints', 'user_id');
+        return $this->hasOne('App\Models\UserPoints', 'user_id');
     }
 }
