@@ -25,9 +25,23 @@ class KostRepository
         return Kost::where('user_id', $user_id)->get();
     }
 
-    public function findById($id)
+    public function findById($id, $user_id = NULL)
     {
-        return Kost::where('id', $id)->firstOrFail();
+        return Kost::where('id', $id)->first();
+    }
+
+    public function update(Kost $kost, $params)
+    {
+        foreach($params as $key => $value) {
+            $kost->{$key} = $value;
+        }
+        $kost->save();
+        return $kost;
+    }
+
+    public function delete(Kost $kost)
+    {
+        return $kost->delete();
     }
 
     public function buildSearchParams(Request $request)
@@ -59,12 +73,12 @@ class KostRepository
                 }
                 continue;
             }
-            if ($op === '=') {
-                $value = (int) $value;
-            }
-            else if ($op === 'like') {
+            if ($op === 'like') {
                 $value = "%{$value}%";
             }
+            else if ($op !== '=') {
+                $value = (int) $value;
+            } 
             $params[] = [$idx, $op, $value];
         }
 

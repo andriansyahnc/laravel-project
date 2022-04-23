@@ -33,6 +33,7 @@ class KostController extends Controller
             return response()->json([
                 "status" => true,
                 "data" => $kosts,
+                // "params" => $params,
             ], 200);
         } catch (\Exception $e) {
             throw $e;
@@ -133,7 +134,48 @@ class KostController extends Controller
     public function update(Request $request, $id)
     {
         try {
-           
+            if (!$request->user()->tokenCan('owner')) {
+                return response()->json([
+                    'status' => false,
+                    'error' => 'Forbidden',
+                ], 403);
+            }
+            $kost = $this->kostRepository->findById($id);
+            if (!$kost) {
+                return response()->json([
+                    "status" => false,
+                    "error" => 'Not Found',
+                ], 404);    
+            }
+            if ($kost->user_id !== $request->user()->id) {
+                return response()->json([
+                    "status" => false,
+                    "error" => 'Forbidden',
+                ], 403); 
+            }
+
+            $validator = Validator::make($request->all(), [
+                'name' => 'max:30',
+                'description' => 'max:100',
+                'room_area' => 'numeric|min:1',
+                'price' => 'numeric|min:0',
+                'full' => 'boolean',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    "status" => false,
+                    "error" => $validator->errors(),
+                ], 422);
+            }
+
+            $input = $request->only('name', 'description', 'room_area', 'location', 'price', 'full');
+            $updated_kost = $this->kostRepository->update($kost, $input);
+
+            return response()->json([
+                "status" => true,
+                "data" => $updated_kost,
+            ], 200);
         } catch (\Exception $e) {
             throw $e;
         }
@@ -142,13 +184,37 @@ class KostController extends Controller
     /**
      * Remove the specified resource from storage.
      *
+     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function delete($id)
+    public function delete(Request $request, $id)
     {
         try {
-           
+            if (!$request->user()->tokenCan('owner')) {
+                return response()->json([
+                    'status' => false,
+                    'error' => 'Forbidden',
+                ], 403);
+            }
+            $kost = $this->kostRepository->findById($id);
+            if (!$kost) {
+                return response()->json([
+                    "status" => false,
+                    "error" => 'Not Found',
+                ], 404);    
+            }
+            if ($kost->user_id !== $request->user()->id) {
+                return response()->json([
+                    "status" => false,
+                    "error" => 'Forbidden',
+                ], 403); 
+            }
+            $updated_kost = $this->kostRepository->delete($kost);
+            return response()->json([
+                "status" => true,
+                'message' => $kost->name . ' has deleted successfully',
+            ], 200);
         } catch (\Exception $e) {
             throw $e;
         }
