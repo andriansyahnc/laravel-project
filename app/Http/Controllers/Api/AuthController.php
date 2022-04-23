@@ -6,9 +6,19 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Validator;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
+use App\Services\User\AuthRepository;
+use Illuminate\Contracts\Container\Container;
 
 class AuthController extends Controller
 {
+
+    protected $authRepository;
+
+    public function __construct(Container $app)
+    {
+        $this->authRepository = $app->make(AuthRepository::class);
+    }
+
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -16,6 +26,7 @@ class AuthController extends Controller
             'email' => 'required|email|unique:users,email|max:50',
             'password' => 'required|min:8|max:12',
             'confirm_password' => 'required|same:password',
+            'role' => 'required|exists:groups,name'
           ]);
       
         if ($validator->fails()) {
@@ -24,11 +35,13 @@ class AuthController extends Controller
                 "error" => $validator->errors(),
             ], 422);
         }
-        $input = $request->only('name', 'email', 'password', 'role_name');
+        $input = $request->only('name', 'email', 'password', 'role');
+
+        $user = $this->authRepository->store($input);
+
         return response()->json([
             "status" => true,
-            "data" => $input,
-            "role" => $role_name,
+            "data" => $user,
         ], 200);
     }
 }

@@ -18,4 +18,14 @@ class UsersGroups extends Model
         'user_id',
         'group_id',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo('App\Models\Users', 'user_id');
+    }
+
+    public function group()
+    {
+        return $this->belongsTo('App\Models\Groups', 'group_id');
+    }
 }
