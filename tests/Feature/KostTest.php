@@ -7,6 +7,7 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use Mockery as m;
 use App\Services\Kost\KostRepository;
+use App\Models\Kost;
 use Exception;
 
 class KostTest extends TestCase
@@ -68,6 +69,25 @@ class KostTest extends TestCase
         $this->app->instance(KostRepository::class, $kostMock);
 
         $response = $this->json('POST', '/api/kost', $kost_data, $headers);
+    }
+
+    public function test_list_kosts() {
+        $owners = $this->generateOwners(2);
+
+        $kost = Kost::factory(Kost::class)->create([
+            'user_id' => $owners[0]->id,
+        ]);
+        $missing_kost = Kost::factory(Kost::class)->create([
+            'user_id' => $owners[1]->id,
+        ]);
+
+        $headers = $this->getHeader('owner', $owners[0]);
+        $response = $this->json('GET', '/api/kost', [], $headers);
+        $content = $response->decodeResponseJson();
+
+        $response->assertStatus(200);
+        $this->assertEquals($kost->id, $content['data']['0']['id']);
+        $this->assertEquals(1, count($content['data']));
     }
 
     public function tearDown(): void
