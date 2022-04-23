@@ -34,9 +34,21 @@ class AuthTest extends TestCase
         ];
         $response = $this->json('POST', '/api/user/register', $user);
         $response->assertStatus(200);
+        
+        $content = $response->getContent();
+        $content_json = json_decode($content);
+
+        $user_id = $content_json->data->id;
+
         $this->assertDatabaseHas('users', [
+            'id' => $user_id,
             "name" => $user["name"],
 	        "email" => $user["email"],
+        ]);
+
+        $this->assertDatabaseHas('personal_access_tokens', [
+            'tokenable_id' => $user_id,
+            'tokenable_type' => 'App\Models\User'
         ]);
 
         if ($point === 0) {

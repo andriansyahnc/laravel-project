@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Validator;
-use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use App\Services\User\AuthRepository;
+use Auth;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
+use Validator;
 
 class AuthController extends Controller
 {
@@ -39,9 +40,42 @@ class AuthController extends Controller
 
         $user = $this->authRepository->store($input);
 
+        $token = $user->createToken('auth_token')->plainTextToken;
+
         return response()->json([
             "status" => true,
             "data" => $user,
+            "access_token" => $token,
+            'token_type' => 'Bearer',
         ], 200);
+    }
+
+    public function login(Request $request)
+    {
+        if (!Auth::attempt($request->only('email', 'password')))
+        {
+            return response()
+                ->json(['message' => 'Unauthorized'], 401);
+        }
+
+        $user = $this->authRepository->getByMail($request['email']);
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'success' => true,
+            'access_token' => $token, 
+            'token_type' => 'Bearer',
+        ]);
+    }
+
+    // method for user logout and delete token
+    public function logout()
+    {
+        auth()->user()->tokens()->delete();
+
+        return [
+            'message' => 'You have successfully logged out and the token was successfully deleted'
+        ];
     }
 }

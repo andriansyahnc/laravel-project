@@ -46,4 +46,9 @@ class AuthRepository
 
         return $user;
     }
+
+    public function getByMail($email)
+    {
+        return User::where('email', $email)->firstOrFail();
+    }
 }
