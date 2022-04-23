@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Services\Kost\KostRepository;
+use App\Services\UserPoint\UserPointRepository;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Http\Request;
 use Validator;
@@ -12,9 +13,12 @@ class KostController extends Controller
 {
     protected $kostRepository;
 
+    protected $userPointRepository;
+
     public function __construct(Container $app)
     {
         $this->kostRepository = $app->make(KostRepository::class);
+        $this->userPointRepository = $app->make(UserPointRepository::class);
     }
 
     /**
@@ -214,6 +218,46 @@ class KostController extends Controller
             return response()->json([
                 "status" => true,
                 'message' => $kost->name . ' has deleted successfully',
+            ], 200);
+        } catch (\Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function availability(Request $request)
+    {
+        try {
+            if (!$request->user()->tokenCan('user') && !$request->user()->tokenCan('premium')) {
+                return response()->json([
+                    'status' => false,
+                    'error' => 'Forbidden',
+                ], 403);
+            }
+
+            $input = $request->only('kost_id');
+            
+            $kost = $this->kostRepository->findById($input['kost_id']);
+            if (!$kost) {
+                return response()->json([
+                    "status" => false,
+                    "error" => 'Not Found',
+                ], 404);    
+            }
+            
+            $user_points = $point = $request->user()->points;
+            if ($user_points->point < 5) {
+                return response()->json([
+                    "status" => false,
+                    "error" => 'Insufficient point',
+                ], 404);    
+            }
+
+            $this->userPointRepository->subtract($user_points, 5);
+
+            return response()->json([
+                "status" => true,
+                "kost_id" => $input['kost_id'],
+                "available" => !$kost->full,
             ], 200);
         } catch (\Exception $e) {
             throw $e;

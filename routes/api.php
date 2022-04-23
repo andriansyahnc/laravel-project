@@ -23,6 +23,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::post('/user/logout', [AuthController::class, 'logout']);
 
+    Route::post('/kost/availability', [KostController::class, 'availability']);
     Route::post('/kost', [KostController::class, 'store']);
     Route::get('/kost', [KostController::class, 'index']);
     Route::patch('/kost/{id}', [KostController::class, 'update']);
