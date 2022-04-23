@@ -6,7 +6,7 @@ use Illuminate\Console\Command;
 use App\Services\UserPoint\UserPointRepository;
 use Illuminate\Contracts\Container\Container;
 
-class RechargePremiumCron extends Command
+class RechargeRegularCron extends Command
 {
     /**
      * The name and signature of the console command.
