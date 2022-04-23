@@ -42,7 +42,8 @@ class Kost extends Model
      * @var array<int, string>
      */
     protected $hidden = [
-        'user_id'
+        'user_id',
+        'full'
     ];
 
     public function users()

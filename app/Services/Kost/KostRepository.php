@@ -19,8 +19,8 @@ class KostRepository
         return $kost;
     }
 
-    public function getByMail($email)
+    public function findByOwner($user_id)
     {
-        return User::where('email', $email)->firstOrFail();
+        return Kost::where('user_id', $user_id)->get();
     }
 }

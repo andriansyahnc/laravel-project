@@ -19,7 +19,7 @@ class CreateKostTable extends Migration
             $table->string('description');
             $table->float('room_area');
             $table->string('location');
-            $table->decimal('price', 20, 2);
+            $table->float('price', 20, 2);
             $table->boolean('full')->default(false);
             $table->integer('user_id');
             $table->timestamps();

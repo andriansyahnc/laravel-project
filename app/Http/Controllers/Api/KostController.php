@@ -22,9 +22,19 @@ class KostController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        if (!$request->user()->tokenCan('owner')) {
+            return response()->json([
+                'status' => false,
+                'error' => 'Forbidden',
+            ], 403);
+        }
+        $kosts = $this->kostRepository->findByOwner($request->user()->id);
+        return response()->json([
+            "status" => true,
+            "data" => $kosts,
+        ], 200);
     }
 
     /**
@@ -60,7 +70,7 @@ class KostController extends Controller
         return response()->json([
             "status" => true,
             "data" => $kost,
-        ], 422);
+        ], 200);
     }
 
     /**
