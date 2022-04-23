@@ -108,6 +108,7 @@ class AuthTest extends TestCase
         $content = $response->getContent();
         $content_json = json_decode($content);
         $this->assertEquals(true, $content_json->success);
+        $response->assertStatus(200);
     }
 
     public function test_failed_login_user()
@@ -126,12 +127,7 @@ class AuthTest extends TestCase
 
     public function test_logout_user()
     {
-        $user_data = [
-            'email' => 'mail@email.com',
-            'password' => bcrypt('password'),
-        ];
-        $user = User::factory(App\Model\User::class)->create($user_data);
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $token = $this->getToken();
 
         $response = $this->json('POST', '/api/user/logout', [], [
             'Authorization' => 'Bearer ' . $token,
