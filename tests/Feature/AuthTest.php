@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 use App\Models\Groups;
 use App\Models\User;
+use Illuminate\Support\Facades\Http;
 
 class AuthTest extends TestCase
 {
@@ -82,7 +83,7 @@ class AuthTest extends TestCase
             'email' => 'mail@email.com',
             'password' => bcrypt('password'),
         ];
-        User::factory(App\Model\User::class)->create($user_data);
+        $user_id = User::factory(App\Model\User::class)->create($user_data);
 
         $response = $this->json('POST', '/api/user/login', [
             'email' => 'mail@email.com',
@@ -91,5 +92,23 @@ class AuthTest extends TestCase
         $content = $response->getContent();
         $content_json = json_decode($content);
         $this->assertEquals($content_json->success, true);
+    }
+
+    public function test_logout_user()
+    {
+        $user_data = [
+            'email' => 'mail@email.com',
+            'password' => bcrypt('password'),
+        ];
+        $user = User::factory(App\Model\User::class)->create($user_data);
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        $response = $this->json('POST', '/api/user/logout', [], [
+            'Authorization' => 'Bearer ' . $token,
+        ]);
+        
+        $content = $response->getContent();
+        $content_json = json_decode($content);
+        $this->assertEquals($content_json->message, 'You have successfully logged out and the token was successfully deleted');
     }
 }
