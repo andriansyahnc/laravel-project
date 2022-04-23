@@ -6,12 +6,23 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
+use App\Models\Groups;
+use App\Models\User;
 
 class AuthTest extends TestCase
 {
     use RefreshDatabase;
 
     public function role_points()
+    {
+        return [
+            ["premium", 40],
+            ["user", 20],
+            ["owner", 0],
+        ];
+    }
+
+    public function user_error()
     {
         return [
             ["premium", 40],
@@ -62,5 +73,23 @@ class AuthTest extends TestCase
             "point" => $point,
             "type" => 'add',
         ]);
+    }
+
+
+    public function test_login_user()
+    {
+        $user_data = [
+            'email' => 'mail@email.com',
+            'password' => bcrypt('password'),
+        ];
+        User::factory(App\Model\User::class)->create($user_data);
+
+        $response = $this->json('POST', '/api/user/login', [
+            'email' => 'mail@email.com',
+            'password' => 'password',
+        ]);
+        $content = $response->getContent();
+        $content_json = json_decode($content);
+        $this->assertEquals($content_json->success, true);
     }
 }
