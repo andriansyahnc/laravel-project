@@ -23,4 +23,9 @@ class KostRepository
     {
         return Kost::where('user_id', $user_id)->get();
     }
+
+    public function findById($id)
+    {
+        return Kost::where('id', $id)->firstOrFail();
+    }
 }

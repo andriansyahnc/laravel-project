@@ -23,13 +23,14 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::post('/user/logout', [AuthController::class, 'logout']);
 
-    Route::post('/kost/search', [KostController::class, 'search']);
     Route::post('/kost', [KostController::class, 'store']);
     Route::get('/kost', [KostController::class, 'index']);
-    // Route::get('/kost/{id}', [KostController::class, 'index']);
     // Route::patch('/kost/{id}', [KostController::class, 'update']);
     // Route::delete('/kost/{id}', [KostController::class, 'delete']);
 });
 
 Route::post('/user/register', [AuthController::class, 'register']);
 Route::post('/user/login', [AuthController::class, 'login']);
+
+Route::get('/kost/search', [KostController::class, 'search']);
+Route::get('/kost/{id}', [KostController::class, 'show']);

@@ -81,7 +81,11 @@ class KostController extends Controller
      */
     public function show($id)
     {
-        //
+        $kosts = $this->kostRepository->findById($id);
+        return response()->json([
+            "status" => true,
+            "data" => $kosts,
+        ], 200);
     }
 
     /**
