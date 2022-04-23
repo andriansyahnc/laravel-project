@@ -22,6 +22,24 @@ class KostController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    public function search(Request $request)
+    {
+        $params = [
+            'search' => $this->kostRepository->buildSearchParams($request),
+            'sort' => $this->kostRepository->buildSortParams($request),
+        ];
+        $kosts = $this->kostRepository->findByParams($params);
+        return response()->json([
+            "status" => true,
+            "data" => $kosts,
+        ], 200);
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function index(Request $request)
     {
         if (!$request->user()->tokenCan('owner')) {

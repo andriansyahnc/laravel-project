@@ -3,6 +3,7 @@
 namespace App\Services\Kost;
 
 use App\Models\Kost;
+use Illuminate\Http\Request;
 
 class KostRepository
 {
@@ -27,5 +28,78 @@ class KostRepository
     public function findById($id)
     {
         return Kost::where('id', $id)->firstOrFail();
+    }
+
+    public function buildSearchParams(Request $request)
+    {
+        $mapping = [
+            'contains' => 'like',
+            'gte' => '>=',
+            'lte' => '<=',
+            'lt' => '<',
+            'gt' => '>',
+            'between' => 'between',
+            'is' => '=',
+        ];
+
+        $search_param = $request->input('search');
+        if (!$search_param) {
+            return [];
+        }
+        $params = [];
+        foreach ($search_param as $idx => $param) {
+            $key = array_key_last($param);
+            $value = $param[$key];
+            $op = $mapping[$key];
+            if ($op === 'between') {
+                $values = explode(',', $value);
+                if (count($values) === 2) {
+                    $params[] = [$idx, '>=', (int) $values[0]];
+                    $params[] = [$idx, '<=', (int) $values[1]];
+                }
+                continue;
+            }
+            if ($op === '=') {
+                $value = (int) $value;
+            }
+            else if ($op === 'like') {
+                $value = "%{$value}%";
+            }
+            $params[] = [$idx, $op, $value];
+        }
+
+        return $params;
+    }
+
+    public function buildSortParams(Request $request)
+    {
+        $sort = $search_param = $request->input('sort');
+        if (!$sort) {
+            return [];
+        }
+        $sort_params = explode(',', $sort);
+        $sort_data = [];
+        foreach ($sort_params as $sort_param) {
+            if (substr($sort_param, 0, 1) === "-") {
+                $name = str_replace('-', '', $sort_param);
+                $sort_data[] = [$name, 'DESC'];
+            } else {
+                $sort_data[] = [$sort_param, 'ASC'];
+            }
+        }
+        return $sort_data;
+    }
+
+    public function findByParams($params) 
+    {
+        $search = $params['search'];
+        $kost_query = Kost::select('*');
+        if (!empty($search)) {
+            $kost_query->where($search);
+        }
+        foreach ($params['sort'] as $sort) {
+            $kost_query->orderBy($sort[0], $sort[1]);
+        }
+        return $kost_query->get();
     }
 }
