@@ -2,7 +2,7 @@
 
 namespace App\Services\User;
 
-use App\Models\Users;
+use App\Models\User;
 use App\Models\Groups;
 use App\Models\UserPoints;
 use Illuminate\Support\Facades\Hash;
@@ -13,7 +13,7 @@ class AuthRepository
     {
         $group = Groups::where('name', $data['role'])->first();
 
-        $user = new Users();
+        $user = new User();
         $user->name = $data['name'];
         $user->password = Hash::make($data['password']);
         $user->email = $data['email'];
