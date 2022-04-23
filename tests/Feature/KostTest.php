@@ -23,6 +23,14 @@ class KostTest extends TestCase
         ];
     }
 
+    public function non_owner()
+    {
+        return [
+            ['user'],
+            ['premium'],
+        ];
+    }
+
     public function test_create_kost()
     {
         $headers = $this->getHeader('owner');
@@ -88,6 +96,16 @@ class KostTest extends TestCase
         $response->assertStatus(200);
         $this->assertEquals($kost->id, $content['data']['0']['id']);
         $this->assertEquals(1, count($content['data']));
+    }
+
+    /**
+     * @dataProvider non_owner
+     */
+    public function test_unauthorized_list_kosts($role_name) {
+        $headers = $this->getHeader($role_name);
+        $response = $this->json('GET', '/api/kost', [], $headers);
+        $content = $response->decodeResponseJson();
+        $response->assertStatus(403);
     }
 
     public function tearDown(): void
