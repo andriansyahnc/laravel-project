@@ -23,4 +23,11 @@ class KostTest extends TestCase
         $response = $this->json('POST', '/api/kost', $kost_data, $headers);
         $response->assertStatus(200);
     }
+
+    public function test_unauthorized_create_kost()
+    {
+        $headers = $this->getHeader('user');
+        $response = $this->json('POST', '/api/kost', [], $headers);
+        $response->assertStatus(403);
+    }
 }
