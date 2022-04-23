@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 use App\Models\Groups;
 use App\Models\User;
+use App\Models\UsersGroups;
 use Illuminate\Support\Facades\Http;
 
 class AuthTest extends TestCase
@@ -82,7 +83,12 @@ class AuthTest extends TestCase
             'email' => 'mail@email.com',
             'password' => bcrypt('password'),
         ];
-        $user_id = User::factory(App\Model\User::class)->create($user_data);
+        $user = User::factory(App\Model\User::class)->create($user_data);
+        $group = Groups::where('name', 'user')->first();
+        $user_group = UsersGroups::factory(App\Model\UsersGroups::class)->create([
+            'user_id' => $user->id,
+            'group_id' => $group->id,
+        ]);
 
         $response = $this->json('POST', '/api/user/login', [
             'email' => 'mail@email.com',
@@ -90,7 +96,7 @@ class AuthTest extends TestCase
         ]);
         $content = $response->getContent();
         $content_json = json_decode($content);
-        $this->assertEquals($content_json->success, true);
+        $this->assertEquals(true, $content_json->success);
     }
 
     public function test_logout_user()
@@ -108,6 +114,6 @@ class AuthTest extends TestCase
         
         $content = $response->getContent();
         $content_json = json_decode($content);
-        $this->assertEquals($content_json->status, true);
+        $this->assertEquals(true, $content_json->success);
     }
 }
