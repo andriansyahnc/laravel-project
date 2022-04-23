@@ -6,7 +6,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use Mockery as m;
-use App\Models\Kost;
+use App\Services\Kost\KostRepository;
+use Exception;
 
 class KostTest extends TestCase
 {
@@ -51,7 +52,8 @@ class KostTest extends TestCase
 
     public function test_exception_create_kost()
     {
-        $this->expectException(\Exception::class);
+        $this->withoutExceptionHandling();
+        $this->expectException(Exception::class);
         $headers = $this->getHeader('owner');
         $kost_data = [
             'name' => $this->faker->name(),
@@ -60,9 +62,18 @@ class KostTest extends TestCase
             'location' => $this->faker->name(),
             'price' => $this->faker->randomNumber(7, false),
         ];
-        $kostMock = m::mock('overload:App\Models\Kost');
-        $kostMock->shouldReceive('save')->andThrow(new \Exception());
+        $kostMock = m::mock('KostRepository')
+            ->shouldReceive('store')->andThrow(new Exception());
+
+        $this->app->instance(KostRepository::class, $kostMock);
+
         $response = $this->json('POST', '/api/kost', $kost_data, $headers);
+    }
+
+    public function tearDown(): void
+    {
+        parent::tearDown();
+        m::close();
     }
 
 }
