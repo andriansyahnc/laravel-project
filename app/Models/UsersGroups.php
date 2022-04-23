@@ -19,6 +19,13 @@ class UsersGroups extends Model
         'group_id',
     ];
 
+    /**
+     * Indicates if the model should be timestamped.
+     *
+     * @var bool
+     */
+    public $timestamps = true;
+
     public function user()
     {
         return $this->belongsTo('App\Models\Users', 'user_id');

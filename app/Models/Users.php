@@ -57,4 +57,9 @@ class Users extends Model
     {
         return $this->hasMany('App\Models\UsersGroups', 'user_id');
     }
+
+    public function points()
+    {
+        return $this->belongsTo('App\Models\UserPoints', 'user_id');
+    }
 }
