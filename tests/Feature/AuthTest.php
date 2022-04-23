@@ -76,7 +76,6 @@ class AuthTest extends TestCase
         ]);
     }
 
-
     public function test_login_user()
     {
         $user_data = [
@@ -109,6 +108,6 @@ class AuthTest extends TestCase
         
         $content = $response->getContent();
         $content_json = json_decode($content);
-        $this->assertEquals($content_json->message, 'You have successfully logged out and the token was successfully deleted');
+        $this->assertEquals($content_json->status, true);
     }
 }
