@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
+use Mockery as m;
+use App\Models\Kost;
 
 class KostTest extends TestCase
 {
@@ -45,6 +47,22 @@ class KostTest extends TestCase
             return;
         }
         $response->assertStatus(403);
+    }
+
+    public function test_exception_create_kost()
+    {
+        $this->expectException(\Exception::class);
+        $headers = $this->getHeader('owner');
+        $kost_data = [
+            'name' => $this->faker->name(),
+            'description' => $this->faker->sentence(),
+            'room_area' => $this->faker->randomNumber(5, false),
+            'location' => $this->faker->name(),
+            'price' => $this->faker->randomNumber(7, false),
+        ];
+        $kostMock = m::mock('overload:App\Models\Kost');
+        $kostMock->shouldReceive('save')->andThrow(new \Exception());
+        $response = $this->json('POST', '/api/kost', $kost_data, $headers);
     }
 
 }
