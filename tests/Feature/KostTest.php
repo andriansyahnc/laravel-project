@@ -10,6 +10,15 @@ class KostTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
+    public function role_name()
+    {
+        return [
+            ['user'],
+            ['premium'],
+            ['owner'],
+        ];
+    }
+
     public function test_create_kost()
     {
         $headers = $this->getHeader('owner');
@@ -24,10 +33,18 @@ class KostTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function test_unauthorized_create_kost()
+    /**
+     * @dataProvider role_name
+     */
+    public function test_failed_create_kost($role_name)
     {
-        $headers = $this->getHeader('user');
+        $headers = $this->getHeader($role_name);
         $response = $this->json('POST', '/api/kost', [], $headers);
+        if ($role_name === 'owner') {
+            $response->assertStatus(422);
+            return;
+        }
         $response->assertStatus(403);
     }
+
 }
