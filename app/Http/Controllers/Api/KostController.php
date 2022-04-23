@@ -24,15 +24,20 @@ class KostController extends Controller
      */
     public function search(Request $request)
     {
-        $params = [
-            'search' => $this->kostRepository->buildSearchParams($request),
-            'sort' => $this->kostRepository->buildSortParams($request),
-        ];
-        $kosts = $this->kostRepository->findByParams($params);
-        return response()->json([
-            "status" => true,
-            "data" => $kosts,
-        ], 200);
+        try {
+            $params = [
+                'search' => $this->kostRepository->buildSearchParams($request),
+                'sort' => $this->kostRepository->buildSortParams($request),
+            ];
+            $kosts = $this->kostRepository->findByParams($params);
+            return response()->json([
+                "status" => true,
+                "data" => $kosts,
+            ], 200);
+        } catch (\Exception $e) {
+            throw $e;
+        }
+        
     }
 
     /**
@@ -42,17 +47,21 @@ class KostController extends Controller
      */
     public function index(Request $request)
     {
-        if (!$request->user()->tokenCan('owner')) {
+        try {
+            if (!$request->user()->tokenCan('owner')) {
+                return response()->json([
+                    'status' => false,
+                    'error' => 'Forbidden',
+                ], 403);
+            }
+            $kosts = $this->kostRepository->findByOwner($request->user()->id);
             return response()->json([
-                'status' => false,
-                'error' => 'Forbidden',
-            ], 403);
+                "status" => true,
+                "data" => $kosts,
+            ], 200);
+        } catch (\Exception $e) {
+            throw $e;
         }
-        $kosts = $this->kostRepository->findByOwner($request->user()->id);
-        return response()->json([
-            "status" => true,
-            "data" => $kosts,
-        ], 200);
     }
 
     /**
@@ -63,32 +72,36 @@ class KostController extends Controller
      */
     public function store(Request $request)
     {
-        if (!$request->user()->tokenCan('owner')) {
+        try {
+            if (!$request->user()->tokenCan('owner')) {
+                return response()->json([
+                    'status' => false,
+                    'error' => 'Forbidden',
+                ], 403);
+            }
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|max:30',
+                'description' => 'required|max:100',
+                'room_area' => 'required|numeric|min:1',
+                'location' => 'required|',
+                'price' => 'required|numeric|min:0'
+            ]);
+            if ($validator->fails()) {
+                return response()->json([
+                    "status" => false,
+                    "error" => $validator->errors(),
+                ], 422);
+            }
+            $input = $request->only('name', 'description', 'room_area', 'location', 'price');
+            $kost = $this->kostRepository->store($input, $request->user()->id);
+    
             return response()->json([
-                'status' => false,
-                'error' => 'Forbidden',
-            ], 403);
+                "status" => true,
+                "data" => $kost,
+            ], 200);
+        } catch (\Exception $e) {
+            throw $e;
         }
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|max:30',
-            'description' => 'required|max:100',
-            'room_area' => 'required|numeric|min:1',
-            'location' => 'required|',
-            'price' => 'required|numeric|min:0'
-        ]);
-        if ($validator->fails()) {
-            return response()->json([
-                "status" => false,
-                "error" => $validator->errors(),
-            ], 422);
-        }
-        $input = $request->only('name', 'description', 'room_area', 'location', 'price');
-        $kost = $this->kostRepository->store($input, $request->user()->id);
-
-        return response()->json([
-            "status" => true,
-            "data" => $kost,
-        ], 200);
     }
 
     /**
@@ -99,22 +112,15 @@ class KostController extends Controller
      */
     public function show($id)
     {
-        $kosts = $this->kostRepository->findById($id);
-        return response()->json([
-            "status" => true,
-            "data" => $kosts,
-        ], 200);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
+        try {
+            $kosts = $this->kostRepository->findById($id);
+            return response()->json([
+                "status" => true,
+                "data" => $kosts,
+            ], 200);
+        } catch (\Exception $e) {
+            throw $e;
+        }
     }
 
     /**
@@ -126,7 +132,11 @@ class KostController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        try {
+           
+        } catch (\Exception $e) {
+            throw $e;
+        }
     }
 
     /**
@@ -135,8 +145,12 @@ class KostController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function delete($id)
     {
-        //
+        try {
+           
+        } catch (\Exception $e) {
+            throw $e;
+        }
     }
 }
