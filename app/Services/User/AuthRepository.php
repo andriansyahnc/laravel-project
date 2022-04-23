@@ -5,6 +5,7 @@ namespace App\Services\User;
 use App\Models\Users;
 use App\Models\Groups;
 use App\Models\UserPoints;
+use Illuminate\Support\Facades\Hash;
 
 class AuthRepository
 {
@@ -14,7 +15,7 @@ class AuthRepository
 
         $user = new Users();
         $user->name = $data['name'];
-        $user->password = $data['password'];
+        $user->password = Hash::make($data['password']);
         $user->email = $data['email'];
         $user->save();
 
