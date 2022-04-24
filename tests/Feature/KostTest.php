@@ -155,7 +155,7 @@ class KostTest extends TestCase
         $second_kost = Kost::factory(Kost::class)->create([
             'name' => 'my chemical romance',
         ]);
-        $second_kost = Kost::factory(Kost::class)->create([
+        $third_kost = Kost::factory(Kost::class)->create([
             'name' => 'kos siapa?',
         ]);
         $response1 = $this->json('GET', '/api/kost/search?search[name][contains]=my');
@@ -208,13 +208,42 @@ class KostTest extends TestCase
         $second_kost = Kost::factory(Kost::class)->create([
             'price' => 2000
         ]);
-        $second_kost = Kost::factory(Kost::class)->create([
+        $third_kost = Kost::factory(Kost::class)->create([
             'price' => 3000
         ]);
         $response = $this->json('GET', '/api/kost/search?search[price][' . $op . ']=' . $price);
         $response->assertStatus(200);
         $content = $response->decodeResponseJson();
         $this->assertEquals($count, count($content["data"]));
+    }
+
+    public function sort_provider()
+    {
+        return [
+            ['price', 2],
+            ['-price', 1],
+        ];
+    }
+
+    /**
+     * @dataProvider sort_provider
+     */
+    public function test_search_kost_sort($sort, $idx)
+    {
+        $kost = [];
+        $kost[] = Kost::factory(Kost::class)->create([
+            'price' => 2000
+        ]);
+        $kost[] = Kost::factory(Kost::class)->create([
+            'price' => 3000
+        ]);
+        $kost[] = Kost::factory(Kost::class)->create([
+            'price' => 1000
+        ]);
+        $response = $this->json('GET', '/api/kost/search?sort=' . $sort);
+        $response->assertStatus(200);
+        $content = $response->decodeResponseJson();
+        $this->assertEquals($kost[$idx]->id, $content["data"][0]["id"]);
     }
 
     public function tearDown(): void
