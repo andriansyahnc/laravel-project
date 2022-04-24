@@ -6,6 +6,7 @@ use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use App\Models\User;
 use App\Models\Groups;
 use App\Models\UsersGroups;
+use Mockery as m;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -59,5 +60,11 @@ abstract class TestCase extends BaseTestCase
             reset($owners);
         }
         return $owners;
+    }
+
+    public function tearDown(): void
+    {
+        parent::tearDown();
+        m::close();
     }
 }
