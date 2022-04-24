@@ -80,7 +80,7 @@ class KostTest extends TestCase
     }
 
     public function test_list_kosts() {
-        $owners = $this->generateOwners(2);
+        $owners = $this->generateUsers(2, 'owner');
 
         $kost = Kost::factory(Kost::class)->create([
             'user_id' => $owners[0]->id,
@@ -321,7 +321,7 @@ class KostTest extends TestCase
      */
     public function test_update_or_delete_kost_but_forbidden($op)
     {
-        $owners = $this->generateOwners(2);
+        $owners = $this->generateUsers(2, 'owner');
         $first_kost = Kost::factory(Kost::class)->create([
             'user_id' => $owners[0]->id,
         ]);
@@ -336,7 +336,7 @@ class KostTest extends TestCase
 
     public function test_update_kost_but_validation_fails()
     {
-        $owner = $this->generateOwners(1);
+        $owner = $this->generateUsers(1, 'owner');
         $first_kost = Kost::factory(Kost::class)->create([
             'user_id' => $owner->id,
         ]);
@@ -350,7 +350,7 @@ class KostTest extends TestCase
 
     public function test_update_kost_succeed()
     {
-        $owner = $this->generateOwners(1);
+        $owner = $this->generateUsers(1, 'owner');
         $first_kost = Kost::factory(Kost::class)->create([
             'user_id' => $owner->id,
         ]);
@@ -367,7 +367,7 @@ class KostTest extends TestCase
 
     public function test_delete_kost_succeed()
     {
-        $owner = $this->generateOwners(1);
+        $owner = $this->generateUsers(1, 'owner');
         $first_kost = Kost::factory(Kost::class)->create([
             'user_id' => $owner->id,
         ]);
@@ -377,6 +377,18 @@ class KostTest extends TestCase
 
         $response2 = $this->json('GET', '/api/kost/' . $first_kost->id);
         $response2->assertStatus(404);
+    }
+
+    /**
+     * @dataProvider non_owner
+     */
+    public function test_ask_for_availability($role_name)
+    {
+        $user = $this->generateUsers(1, $role_name);
+        $kost = Kost::factory(Kost::class)->create();
+        $headers = $this->getHeader($role_name, $user);
+        $response = $this->json('POST', '/api/kost/availability', ['kost_id' => $kost->id], $headers);
+        $response->assertStatus(200);
     }
 
 }

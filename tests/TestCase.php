@@ -6,6 +6,7 @@ use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use App\Models\User;
 use App\Models\Groups;
 use App\Models\UsersGroups;
+use App\Models\UserPoints;
 use Mockery as m;
 
 abstract class TestCase extends BaseTestCase
@@ -43,23 +44,29 @@ abstract class TestCase extends BaseTestCase
         return Groups::where('name', $name)->first();
     }
 
-    public function generateOwners($count = 1) {
-        $group = $this->getGroup('owner');
+    public function generateUsers($count = 1, $role_name = 'user', $point = 20) {
+        $group = $this->getGroup($role_name);
         
-        $owners = [];
+        $users = [];
         for ($i = 0; $i < $count; $i++) {
             $user = User::factory(User::class)->create();
             $user_group = UsersGroups::factory(UsersGroups::class)->create([
                 'user_id' => $user->id,
                 'group_id' => $group->id,
             ]);
-            $owners[] = $user;
+            if ($role_name !== 'owner') {
+                UserPoints::factory(UserPoints::class)->create([
+                    'point' => $point,
+                    'user_id' => $user->id,
+                ]);
+            }
+            $users[] = $user;
         }
 
         if ($count === 1) {
-            return reset($owners);
+            return reset($users);
         }
-        return $owners;
+        return $users;
     }
 
     public function tearDown(): void
