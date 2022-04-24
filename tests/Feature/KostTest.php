@@ -278,4 +278,18 @@ class KostTest extends TestCase
         $response->assertStatus(404);
     }
 
+    public function test_update_kost_but_throw_exceptions()
+    {
+        $this->withoutExceptionHandling();
+        $this->expectException(Exception::class);
+
+        $kostMock = m::mock('KostRepository')
+            ->shouldReceive('findById')->andThrow(new Exception());
+
+        $this->app->instance(KostRepository::class, $kostMock);
+
+        $headers = $this->getHeader('owner');
+        $response = $this->json('PATCH', '/api/kost/1', [], $headers);
+    }
+
 }
