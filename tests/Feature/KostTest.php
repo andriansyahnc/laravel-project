@@ -292,4 +292,19 @@ class KostTest extends TestCase
         $response = $this->json('PATCH', '/api/kost/1', [], $headers);
     }
 
+    public function test_update_kost_but_forbidden()
+    {
+        $owners = $this->generateOwners(2);
+        $first_kost = Kost::factory(Kost::class)->create([
+            'user_id' => $owners[0]->id,
+        ]);
+        $second_kost = Kost::factory(Kost::class)->create([
+            'user_id' => $owners[1]->id,
+        ]);
+        $headers = $this->getHeader('owner', $owners[1]);
+        $response = $this->json('PATCH', '/api/kost/' . $first_kost->id, [], $headers);
+        $content = $response->decodeResponseJson();
+        $response->assertStatus(403);
+    }
+
 }
