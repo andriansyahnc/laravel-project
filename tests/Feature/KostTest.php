@@ -147,7 +147,7 @@ class KostTest extends TestCase
         $response = $this->json('GET', '/api/kost/1');
     }
 
-    public function test_search_kost_by_name()
+    public function test_search_kost_by_name_contains()
     {
         $first_kost = Kost::factory(Kost::class)->create([
             'name' => 'my beautiful kostan',
@@ -163,6 +163,24 @@ class KostTest extends TestCase
         $content1 = $response1->decodeResponseJson();
         $this->assertEquals(2, count($content1["data"]));
         $response2 = $this->json('GET', '/api/kost/search?search[name][contains]=siapa?');
+        $response2->assertStatus(200);
+        $content2 = $response2->decodeResponseJson();
+        $this->assertEquals(1, count($content2["data"]));
+    }
+
+    public function test_search_kost_by_name_is()
+    {
+        $first_kost = Kost::factory(Kost::class)->create([
+            'name' => 'my beautiful kostan',
+        ]);
+        $second_kost = Kost::factory(Kost::class)->create([
+            'name' => 'my chemical romance',
+        ]);
+        $response1 = $this->json('GET', '/api/kost/search?search[name][is]=my beautiful kostan');
+        $response1->assertStatus(200);
+        $content1 = $response1->decodeResponseJson();
+        $this->assertEquals(1, count($content1["data"]));
+        $response2 = $this->json('GET', '/api/kost/search?search[name][is]=my chemical romance');
         $response2->assertStatus(200);
         $content2 = $response2->decodeResponseJson();
         $this->assertEquals(1, count($content2["data"]));
