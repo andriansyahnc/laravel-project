@@ -356,6 +356,23 @@ class KostTest extends TestCase
         ]);
         $headers = $this->getHeader('owner', $owner);
         $response = $this->json('PATCH', '/api/kost/' . $first_kost->id, [
+            'name' => 'new title',
+        ], $headers);
+        $response->assertStatus(200);
+
+        $response = $this->json('GET', '/api/kost/' . $first_kost->id);
+        $content = $response->decodeResponseJson();
+        $this->assertEquals('new title', $content["data"]["name"]);
+    }
+
+    public function test_delete_kost_succeed()
+    {
+        $owner = $this->generateOwners(1);
+        $first_kost = Kost::factory(Kost::class)->create([
+            'user_id' => $owner->id,
+        ]);
+        $headers = $this->getHeader('owner', $owner);
+        $response = $this->json('PATCH', '/api/kost/' . $first_kost->id, [
             'full' => false
         ], $headers);
         $response->assertStatus(200);
