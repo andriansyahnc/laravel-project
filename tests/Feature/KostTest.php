@@ -270,4 +270,12 @@ class KostTest extends TestCase
         $response->assertStatus(403);
     }
 
+    public function test_update_kost_but_not_found()
+    {
+        $headers = $this->getHeader('owner');
+        $response = $this->json('PATCH', '/api/kost/1', [], $headers);
+        $content = $response->decodeResponseJson();
+        $response->assertStatus(404);
+    }
+
 }
