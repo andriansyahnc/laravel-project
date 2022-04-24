@@ -189,17 +189,18 @@ class KostTest extends TestCase
     public function price_assert_provider()
     {
         return [
-            ['lte', 2],
-            ['gte', 2],
-            ['gt', 1],
-            ['lt', 1],
+            ['lte', 2, 2000],
+            ['gte', 2, 2000],
+            ['gt', 1, 2000],
+            ['lt', 1, 2000],
+            ['between', 1, "1500,2000"],
         ];
     }
 
     /**
      * @dataProvider price_assert_provider
      */
-    public function test_search_kost_by_price_lte_gte($op, $count)
+    public function test_search_kost_by_price_lte_gte($op, $count, $price)
     {
         $first_kost = Kost::factory(Kost::class)->create([
             'price' => 1000
@@ -210,7 +211,7 @@ class KostTest extends TestCase
         $second_kost = Kost::factory(Kost::class)->create([
             'price' => 3000
         ]);
-        $response = $this->json('GET', '/api/kost/search?search[price][' . $op . ']=2000');
+        $response = $this->json('GET', '/api/kost/search?search[price][' . $op . ']=' . $price);
         $response->assertStatus(200);
         $content = $response->decodeResponseJson();
         $this->assertEquals($count, count($content["data"]));
