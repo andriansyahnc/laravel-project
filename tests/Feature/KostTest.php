@@ -391,4 +391,35 @@ class KostTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function test_ask_for_availability_forbidden()
+    {
+        $user = $this->generateUsers(1, 'owner');
+        $headers = $this->getHeader('owner', $user);
+        $response = $this->json('POST', '/api/kost/availability', ['kost_id' => 1], $headers);
+        $response->assertStatus(403);
+    }
+
+    /**
+     * @dataProvider non_owner
+     */
+    public function test_ask_for_availability_not_found($role_name)
+    {
+        $user = $this->generateUsers(1, $role_name);
+        $headers = $this->getHeader($role_name, $user);
+        $response = $this->json('POST', '/api/kost/availability', ['kost_id' => 1], $headers);
+        $response->assertStatus(404);
+    }
+
+    /**
+     * @dataProvider non_owner
+     */
+    public function test_ask_for_availability_insufficient($role_name)
+    {
+        $user = $this->generateUsers(1, $role_name, 3);
+        $kost = Kost::factory(Kost::class)->create();
+        $headers = $this->getHeader($role_name, $user);
+        $response = $this->json('POST', '/api/kost/availability', ['kost_id' => $kost->id], $headers);
+        $response->assertStatus(422);
+    }
+
 }

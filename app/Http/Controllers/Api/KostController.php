@@ -255,7 +255,7 @@ class KostController extends Controller
                 return response()->json([
                     "status" => false,
                     "error" => 'Insufficient point',
-                ], 404);    
+                ], 422);    
             }
 
             $this->userPointRepository->subtract($user_points, 5);
