@@ -272,7 +272,7 @@ class KostTest extends TestCase
     /**
      * @dataProvider operation_non_owner
      */
-    public function test_unauthorized_update_kost($role_name, $op)
+    public function test_unauthorized_update_or_delete_kost($role_name, $op)
     {
         $headers = $this->getHeader($role_name);
         $response = $this->json($op, '/api/kost/1', [], $headers);
@@ -280,15 +280,29 @@ class KostTest extends TestCase
         $response->assertStatus(403);
     }
 
-    public function test_update_kost_but_not_found()
+    public function op_provider()
+    {
+        return [
+            ['PATCH'],
+            ['DELETE'],
+        ];
+    }
+
+    /**
+     * @dataProvider op_provider
+     */
+    public function test_update_or_delete_kost_but_not_found($op)
     {
         $headers = $this->getHeader('owner');
-        $response = $this->json('PATCH', '/api/kost/1', [], $headers);
+        $response = $this->json($op, '/api/kost/1', [], $headers);
         $content = $response->decodeResponseJson();
         $response->assertStatus(404);
     }
 
-    public function test_update_kost_but_throw_exceptions()
+    /**
+     * @dataProvider op_provider
+     */
+    public function test_update_or_delete_kost_but_throw_exceptions($op)
     {
         $this->withoutExceptionHandling();
         $this->expectException(Exception::class);
@@ -299,7 +313,7 @@ class KostTest extends TestCase
         $this->app->instance(KostRepository::class, $kostMock);
 
         $headers = $this->getHeader('owner');
-        $response = $this->json('PATCH', '/api/kost/1', [], $headers);
+        $response = $this->json($op, '/api/kost/1', [], $headers);
     }
 
     public function test_update_kost_but_forbidden()
