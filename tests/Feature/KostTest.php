@@ -246,6 +246,19 @@ class KostTest extends TestCase
         $this->assertEquals($kost[$idx]->id, $content["data"][0]["id"]);
     }
 
+    public function test_search_kosts_with_exception()
+    {
+        $this->withoutExceptionHandling();
+        $this->expectException(Exception::class);
+
+        $kostMock = m::mock('KostRepository')
+            ->shouldReceive('findByParams')->andThrow(new Exception());
+
+        $this->app->instance(KostRepository::class, $kostMock);
+
+        $response = $this->json('GET', '/api/kost/search');
+    }
+
     public function tearDown(): void
     {
         parent::tearDown();
