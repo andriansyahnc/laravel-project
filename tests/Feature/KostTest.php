@@ -259,13 +259,23 @@ class KostTest extends TestCase
         $response = $this->json('GET', '/api/kost/search');
     }
 
+    public function operation_non_owner() 
+    {
+        return [
+            ['user', 'PATCH'],
+            ['premium', 'PATCH'],
+            ['user', 'DELETE'],
+            ['premium', 'DELETE'],
+        ];
+    }
+
     /**
-     * @dataProvider non_owner
+     * @dataProvider operation_non_owner
      */
-    public function test_unauthorized_update_kost($role_name)
+    public function test_unauthorized_update_kost($role_name, $op)
     {
         $headers = $this->getHeader($role_name);
-        $response = $this->json('PATCH', '/api/kost/1', [], $headers);
+        $response = $this->json($op, '/api/kost/1', [], $headers);
         $content = $response->decodeResponseJson();
         $response->assertStatus(403);
     }
