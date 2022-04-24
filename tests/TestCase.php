@@ -57,7 +57,7 @@ abstract class TestCase extends BaseTestCase
         }
 
         if ($count === 1) {
-            reset($owners);
+            return reset($owners);
         }
         return $owners;
     }
