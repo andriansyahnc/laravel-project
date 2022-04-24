@@ -422,4 +422,22 @@ class KostTest extends TestCase
         $response->assertStatus(422);
     }
 
+    /**
+     * @dataProvider non_owner
+     */
+    public function test_ask_for_availability_error($role_name)
+    {
+        $this->withoutExceptionHandling();
+        $this->expectException(Exception::class);
+
+        $kostMock = m::mock('KostRepository')
+            ->shouldReceive('findById')->andThrow(new Exception());
+
+        $this->app->instance(KostRepository::class, $kostMock);
+
+        $user = $this->generateUsers(1, $role_name);
+        $headers = $this->getHeader($role_name, $user);
+        $response = $this->json('POST', '/api/kost/availability', ['kost_id' => 1], $headers);
+    }
+
 }
