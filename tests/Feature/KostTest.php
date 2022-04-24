@@ -121,6 +121,12 @@ class KostTest extends TestCase
         $response = $this->json('GET', '/api/kost', [], $headers);
     }
 
+    public function test_detail_kosts_not_found()
+    {
+        $response = $this->json('GET', '/api/kost/1');
+        $response->assertStatus(404);
+    }
+
     public function tearDown(): void
     {
         parent::tearDown();

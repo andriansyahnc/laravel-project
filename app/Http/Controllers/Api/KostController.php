@@ -118,10 +118,16 @@ class KostController extends Controller
     public function show($id)
     {
         try {
-            $kosts = $this->kostRepository->findById($id);
+            $kost = $this->kostRepository->findById($id);
+            if (!$kost) {
+                return response()->json([
+                    "status" => false,
+                    "error" => 'Not Found',
+                ], 404);    
+            }
             return response()->json([
                 "status" => true,
-                "data" => $kosts,
+                "data" => $kost,
             ], 200);
         } catch (\Exception $e) {
             throw $e;
