@@ -127,6 +127,13 @@ class KostTest extends TestCase
         $response->assertStatus(404);
     }
 
+    public function test_detail_kosts()
+    {
+        $kost = Kost::factory(Kost::class)->create();
+        $response = $this->json('GET', '/api/kost/' . $kost->id);
+        $response->assertStatus(200);
+    }
+
     public function tearDown(): void
     {
         parent::tearDown();

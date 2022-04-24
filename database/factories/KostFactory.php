@@ -19,6 +19,7 @@ class KostFactory extends Factory
             'room_area' => $this->faker->randomNumber(5, false),
             'location' => $this->faker->name(),
             'price' => $this->faker->randomNumber(7, false),
+            'user_id' => $this->faker->randomNumber(5, false),
         ];
     }
 }
