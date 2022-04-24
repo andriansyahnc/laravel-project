@@ -321,4 +321,17 @@ class KostTest extends TestCase
         $response->assertStatus(422);
     }
 
+    public function test_update_kost_succeed()
+    {
+        $owner = $this->generateOwners(1);
+        $first_kost = Kost::factory(Kost::class)->create([
+            'user_id' => $owner->id,
+        ]);
+        $headers = $this->getHeader('owner', $owner);
+        $response = $this->json('PATCH', '/api/kost/' . $first_kost->id, [
+            'full' => false
+        ], $headers);
+        $response->assertStatus(200);
+    }
+
 }
