@@ -372,10 +372,11 @@ class KostTest extends TestCase
             'user_id' => $owner->id,
         ]);
         $headers = $this->getHeader('owner', $owner);
-        $response = $this->json('PATCH', '/api/kost/' . $first_kost->id, [
-            'full' => false
-        ], $headers);
+        $response = $this->json('DELETE', '/api/kost/' . $first_kost->id, [], $headers);
         $response->assertStatus(200);
+
+        $response2 = $this->json('GET', '/api/kost/' . $first_kost->id);
+        $response2->assertStatus(404);
     }
 
 }
